@@ -146,3 +146,30 @@ To inspect the internal states of your custom NLU model:
    - **Step 3: Neural Propagation:** View input, hidden, and output neurons turning on based on activations, alongside a live softmax probability bar chart showing how confident the model is in its classifications.
    - **Step 4: Dialogue State Tracker:** See details about the currently active ticket structure, quiz score index, or translation language flags.
 
+---
+
+## 📱 SMS Auto-Reply & Webhook Integration
+
+Antares AI includes a built-in webhook pipeline to support auto-responses to real text messages (SMS or WhatsApp) from your own phone number.
+
+### How to Hook Up a Real Phone Number (Twilio)
+1. **Start the backend:** Ensure the Flask backend is running locally on port 5000 (`npm run start-backend`).
+2. **Expose your local port:** Download `ngrok` and run the following command in a terminal to create a secure public tunnel:
+   ```powershell
+   ngrok http 5000
+   ```
+3. **Configure your Twilio settings:**
+   - Log in to your Twilio Console and click on **Phone Numbers ➔ Active Numbers**.
+   - Select your number and scroll down to the **Messaging** configuration.
+   - Under **A Message Comes In**, choose **Webhook** and set the type to **HTTP POST**.
+   - Paste your ngrok HTTPS forwarding URL with the path:
+     ```text
+     https://<your-ngrok-subdomain>.ngrok-free.app/api/webhook/sms
+     ```
+4. **Test auto-replies:** Text your Twilio number from any mobile phone. The AI chatbot will process the intent and reply from your side automatically, while preserving dialogue states (like quiz scores or support tickets) for each individual phone number.
+
+### Simulating SMS in the Dashboard
+If you don't have a Twilio number yet:
+1. Navigate to the **SMS Auto-Reply** tab in the cockpit dashboard.
+2. In the smartphone simulator, enter a phone number (e.g., `+1 (555) 0199`) and type messages.
+3. Observe how the mock phone thread displays incoming/outgoing bubbles, and review the transaction log table at the bottom of the screen.

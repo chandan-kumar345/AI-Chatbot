@@ -2,6 +2,7 @@ import os
 import queue
 import threading
 import json
+from datetime import datetime
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 
@@ -17,6 +18,11 @@ pipeline = ChatPipeline()
 training_queue = queue.Queue()
 is_training = False
 training_lock = threading.Lock()
+
+# Multi-user session mapping by phone number & SMS transactional logs
+phone_sessions = {}
+sms_logs = []
+auto_responder_active = True
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -141,6 +147,146 @@ def training_status():
                 break
                 
     return Response(event_stream(), content_type='text/event-stream')
+
+# --- SMS Webhook & Integration Endpoints ---
+
+@app.route('/api/webhook/sms', methods=['POST'])
+def twilio_sms_webhook():
+    """Twilio SMS webhook endpoint. Parses incoming messages and auto-responds."""
+    global pipeline, phone_sessions, sms_logs, auto_responder_active
+    
+    if not auto_responder_active:
+        return Response("<Response></Response>", content_type='application/xml')
+
+    # Twilio sends form data: From, Body
+    phone = request.form.get("From", "").strip()
+    body = request.form.get("Body", "").strip()
+
+    # Fallback to JSON if request is simulated with JSON
+    if not phone or not body:
+        data = request.get_json() or {}
+        phone = data.get("From", "").strip()
+        body = data.get("Body", "").strip()
+
+    if not phone or not body:
+        return Response("<Response></Response>", content_type='application/xml')
+
+    # Get or create independent state for this phone number
+    if phone not in phone_sessions:
+        phone_sessions[phone] = {
+            "mode": "general",
+            "quiz_active": False,
+            "quiz_q_index": 0,
+            "quiz_score": 0,
+            "ticket_active": False,
+            "ticket_step": 0,
+            "ticket_details": {},
+            "game_active": False,
+            "game_step": 0,
+            "translation_lang": "es"
+        }
+        
+    session_state = phone_sessions[phone]
+
+    try:
+        # Process user message with specific phone session state
+        result = pipeline.process(body, session_state)
+        
+        # Save the updated session state
+        phone_sessions[phone] = result["session_state"]
+        
+        response_text = result["response"]
+        
+        # Log this transaction
+        log_entry = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "phone": phone,
+            "incoming": body,
+            "outgoing": response_text,
+            "intent": result["pipeline"]["predicted_tag"],
+            "confidence": float(result["pipeline"]["confidence"]),
+            "mode": result["mode"]
+        }
+        sms_logs.append(log_entry)
+        if len(sms_logs) > 50:
+            sms_logs.pop(0)
+
+        # Build standard TwiML XML Response
+        twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{response_text}</Message></Response>'
+        return Response(twiml, content_type='application/xml')
+        
+    except Exception as e:
+        error_twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, our internal AI pipeline encountered an error: {str(e)}</Message></Response>'
+        return Response(error_twiml, content_type='application/xml')
+
+@app.route('/api/sms/logs', methods=['GET'])
+def get_sms_logs():
+    """Retrieve recent SMS transactions."""
+    return jsonify(sms_logs)
+
+@app.route('/api/sms/simulate', methods=['POST'])
+def simulate_sms():
+    """Simulate an incoming SMS from the dashboard console."""
+    global pipeline, phone_sessions, sms_logs
+    
+    data = request.get_json() or {}
+    phone = data.get("phone", "").strip()
+    body = data.get("message", "").strip()
+
+    if not phone or not body:
+        return jsonify({"error": "Phone and message parameters are required."}), 400
+
+    # Get or create independent state
+    if phone not in phone_sessions:
+        phone_sessions[phone] = {
+            "mode": "general",
+            "quiz_active": False,
+            "quiz_q_index": 0,
+            "quiz_score": 0,
+            "ticket_active": False,
+            "ticket_step": 0,
+            "ticket_details": {},
+            "game_active": False,
+            "game_step": 0,
+            "translation_lang": "es"
+        }
+        
+    session_state = phone_sessions[phone]
+
+    try:
+        result = pipeline.process(body, session_state)
+        phone_sessions[phone] = result["session_state"]
+        
+        response_text = result["response"]
+        
+        log_entry = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "phone": phone,
+            "incoming": body,
+            "outgoing": response_text,
+            "intent": result["pipeline"]["predicted_tag"],
+            "confidence": float(result["pipeline"]["confidence"]),
+            "mode": result["mode"]
+        }
+        sms_logs.append(log_entry)
+        if len(sms_logs) > 50:
+            sms_logs.pop(0)
+
+        return jsonify({
+            "success": True,
+            "response": response_text,
+            "log": log_entry
+        })
+    except Exception as e:
+        return jsonify({"error": f"Failed to process simulation: {str(e)}"}), 500
+
+@app.route('/api/sms/toggle', methods=['POST'])
+def toggle_sms_responder():
+    """Toggle the SMS auto-responder capability."""
+    global auto_responder_active
+    data = request.get_json() or {}
+    auto_responder_active = bool(data.get("active", True))
+    return jsonify({"success": True, "active": auto_responder_active})
 
 if __name__ == '__main__':
     # Ensure data folder exists

@@ -130,3 +130,57 @@ To prevent training runs from blocking the Flask HTTP server threads, training i
 2. **Execution Callback:** During training, the background loop passes metrics (loss, accuracy, epoch) to `training_queue.put()`.
 3. **Streaming Response:** The client connects to the SSE channel `/api/train/status`. The server generates a continuous `Response` block, listening to the queue via `queue.get(timeout=10.0)`. If empty, it pings a keep-alive message to avoid timeouts.
 4. **Conclusion:** When the thread completes or errors out, it puts a final state flag (`complete` or `error`) into the queue, reloads the model weight binaries on the server, and releases the thread-safe lock.
+
+---
+
+## 5. Multi-User SMS Session Registry & Webhook Routing
+
+To enable automated AI replies across text message channels (SMS / WhatsApp) without cross-talk between different users, the backend implements a state-isolated session registry:
+
+```text
+[ Incoming Twilio Request ]
+         ||
+         \/
+   [ Read Form-Data ] ➔ Extract From (Phone) & Body (Text)
+         ||
+         \/
+   [ Registry Lookup ] ➔ Check if Phone in phone_sessions
+         ||
+         +---> (No)  ➔ Instantiate clean session state dictionary
+         +---> (Yes) ➔ Retrieve existing session state dictionary
+         ||
+         \/
+   [ Process Pipeline ] ➔ Run query through tokenizers, MLP models, and state wizards
+         ||
+         \/
+   [ Update Session ] ➔ Save updated state back to phone_sessions[Phone]
+         ||
+         \/
+   [ XML TwiML Formatter ] ➔ Wrap in <Response><Message>...</Message></Response>
+         ||
+         \/
+[ Return HTTP 200 (application/xml) ]
+```
+
+### A. Thread-Safe Session Isolation
+Unlike the single active session state preserved in the frontend dashboard browser memory, the backend stores independent conversation states mapped by phone number:
+```python
+# Map of unique phone numbers to state dictionaries
+phone_sessions = {}
+```
+Each state contains the user's active domain mode (Support, Translation, Education, Entertainment), active quiz questions indices, current quiz scores, active support tickets logs, and translation language targets. This allows a user on phone A to take an education quiz while a user on phone B triggers a Spanish translation simultaneously without state interference.
+
+### B. Standard Twilio TwiML Webhook Protocol
+The endpoint `/api/webhook/sms` listens for incoming HTTP POST requests sent by Twilio. Twilio encodes incoming messages in the body as form-data:
+- `From`: The sender's phone number (e.g., `+15551234567`).
+- `Body`: The text query written by the sender (e.g., `"what is photosynthesis?"`).
+
+Upon execution, the server returns the generated response wrapped inside standard **TwiML XML** structures:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Message>Photosynthesis is the process used by plants...</Message>
+</Response>
+```
+The HTTP response sets `Content-Type: application/xml` to ensure Twilio's webhook validator reads and transmits the message back to the sender's mobile phone instantly.
+

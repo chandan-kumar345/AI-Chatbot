@@ -4,6 +4,7 @@ import { ChatInterface } from './components/ChatInterface';
 import { PipelineVisualizer } from './components/PipelineVisualizer';
 import { TrainingConsole } from './components/TrainingConsole';
 import { DatasetManager } from './components/DatasetManager';
+import { SmsConsole } from './components/SmsConsole';
 
 function App() {
   const [activeTab, setActiveTab] = useState('chat');
@@ -82,6 +83,7 @@ function App() {
           
           {[
             { id: 'chat', label: 'Chat Console', icon: '💬', color: 'var(--color-primary)' },
+            { id: 'sms', label: 'SMS Auto-Reply', icon: '📱', color: 'var(--color-green)' },
             { id: 'pipeline', label: 'Pipeline Visualizer', icon: '🔍', color: 'var(--color-teal)' },
             { id: 'training', label: 'Training Cockpit', icon: '⚡', color: 'var(--color-secondary)' },
             { id: 'dataset', label: 'Dataset Manager', icon: '📁', color: 'var(--color-cyan)' }
@@ -156,6 +158,10 @@ function App() {
               onDatasetSaved={handleDatasetSaved} 
               switchToTab={setActiveTab}
             />
+          )}
+
+          {activeTab === 'sms' && (
+            <SmsConsole />
           )}
         </div>
       </main>

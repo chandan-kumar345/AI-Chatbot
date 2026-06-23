@@ -86,5 +86,26 @@ class TestChatbotPipeline(unittest.TestCase):
         # Test state reset
         self.assertEqual(res_trans["session_state"]["ticket_active"], False)
 
+    def test_flask_webhook(self):
+        from app import app
+        client = app.test_client()
+        
+        # Test SMS Webhook with simulated Twilio POST payload
+        response = client.post('/api/webhook/sms', data={
+            "From": "+15559999",
+            "Body": "translate to spanish"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/xml')
+        self.assertIn(b"<Response>", response.data)
+        self.assertIn(b"<Message>", response.data)
+        
+        # Test SMS logs retrieval
+        logs_resp = client.get('/api/sms/logs')
+        self.assertEqual(logs_resp.status_code, 200)
+        logs_data = logs_resp.get_json()
+        self.assertTrue(len(logs_data) > 0)
+        self.assertEqual(logs_data[0]["phone"], "+15559999")
+
 if __name__ == '__main__':
     unittest.main()
