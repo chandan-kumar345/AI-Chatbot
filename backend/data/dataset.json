@@ -1,0 +1,180 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "domain": "general",
+      "patterns": [
+        "hello",
+        "hi",
+        "hey",
+        "good morning",
+        "good day",
+        "is anyone there",
+        "greetings",
+        "howdy"
+      ],
+      "responses": [
+        "Hello! I am your custom AI chatbot assistant. How can I help you today?",
+        "Hi there! How can I assist you in Support, Translation, Entertainment, or Education?",
+        "Hey! Welcome. Select a category below or type your question to get started!"
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "domain": "general",
+      "patterns": [
+        "bye",
+        "goodbye",
+        "see you later",
+        "talk to you later",
+        "i am leaving",
+        "quit",
+        "exit"
+      ],
+      "responses": [
+        "Goodbye! Have a wonderful day!",
+        "Bye! Let me know if you need any more help in the future.",
+        "Farewell! Hope to chat with you again soon."
+      ]
+    },
+    {
+      "tag": "thanks",
+      "domain": "general",
+      "patterns": [
+        "thank you",
+        "thanks",
+        "thank you so much",
+        "awesome thanks",
+        "appreciate it"
+      ],
+      "responses": [
+        "You're very welcome! I'm happy to help.",
+        "Anytime! Let me know if you need anything else.",
+        "Glad I could be of assistance!"
+      ]
+    },
+    {
+      "tag": "support_refund",
+      "domain": "support",
+      "patterns": [
+        "i want a refund",
+        "refund policy",
+        "can i get my money back",
+        "cancel order refund",
+        "how to request refund",
+        "money back guarantee"
+      ],
+      "responses": [
+        "We offer a 30-day money-back guarantee for all purchases. To request a refund, please type 'create ticket' and our customer service pipeline will log your request.",
+        "Our refund policy allows returns within 30 days of purchase. Would you like me to open a customer support ticket for your refund?"
+      ]
+    },
+    {
+      "tag": "support_shipping",
+      "domain": "support",
+      "patterns": [
+        "where is my package",
+        "shipping tracking order",
+        "how long does shipping take",
+        "delivery status order tracking",
+        "when will my order arrive"
+      ],
+      "responses": [
+        "Standard shipping takes 3-5 business days. Express shipping takes 1-2 days. You can track your order status in the customer portal or type 'create ticket' to log a tracking check.",
+        "Your order delivery details can be checked using your tracking ID. If you do not have it, let me know or type 'create ticket' to request manual tracking help."
+      ]
+    },
+    {
+      "tag": "support_ticket",
+      "domain": "support",
+      "patterns": [
+        "create ticket",
+        "open ticket support",
+        "i want to talk to human",
+        "raise a complaint",
+        "file ticket contact representative"
+      ],
+      "responses": [
+        "Sure, I can open a support ticket for you. Please describe your issue clearly, and I will generate a ticket ID.",
+        "Let's create a support ticket. What is the main issue or complaint you would like to submit to our customer support team?"
+      ]
+    },
+    {
+      "tag": "education_quiz",
+      "domain": "education",
+      "patterns": [
+        "start quiz",
+        "test my knowledge",
+        "give me a quiz",
+        "i want a trivia test",
+        "play quiz game",
+        "quiz me"
+      ],
+      "responses": [
+        "Excellent! Let's start the Educational Quiz. Question 1: What is the CPU's primary job in a computer? (A) Store data permanently, (B) Perform calculations and execute instructions, (C) Render 3D graphics.",
+        "Ready for a quiz! Here is your first question: Which chemical element has the symbol 'O'? (A) Osmium, (B) Oxygen, (C) Gold. Type your answer (A, B, or C)!"
+      ]
+    },
+    {
+      "tag": "education_explain",
+      "domain": "education",
+      "patterns": [
+        "explain photosynthesis",
+        "what is gravity",
+        "explain machine learning",
+        "teach me something",
+        "how do cells work"
+      ],
+      "responses": [
+        "Photosynthesis is the process used by plants, algae and certain bacteria to harness energy from sunlight and turn it into chemical energy (glucose) while releasing oxygen.",
+        "Machine Learning (ML) is a branch of AI focused on building systems that learn from data, identify patterns, and make decisions with minimal human intervention.",
+        "Gravity is the force by which a planet or other body draws objects toward its center. It is what keeps planets in orbit around the sun and keeps your feet on the ground!"
+      ]
+    },
+    {
+      "tag": "translate_mode",
+      "domain": "translation",
+      "patterns": [
+        "translate text",
+        "how do you say",
+        "translate english to spanish",
+        "french translation",
+        "spanish translator"
+      ],
+      "responses": [
+        "Welcome to Translation Mode. Please enter the English sentence you want to translate, and select your target language (Spanish or French)!",
+        "Translation engine initialized. Enter any phrase (e.g., 'Hello friend', 'The big blue car') to see my custom token alignment and translation output."
+      ]
+    },
+    {
+      "tag": "entertainment_joke",
+      "domain": "entertainment",
+      "patterns": [
+        "tell me a joke",
+        "make me laugh",
+        "do you know jokes",
+        "another joke",
+        "tell something funny"
+      ],
+      "responses": [
+        "Why don't scientists trust atoms? Because they make up everything!",
+        "Why did the computer go to the doctor? Because it had a virus!",
+        "How many programmers does it take to change a light bulb? None, that's a hardware problem!"
+      ]
+    },
+    {
+      "tag": "entertainment_game",
+      "domain": "entertainment",
+      "patterns": [
+        "play a game",
+        "play adventure",
+        "text adventure game",
+        "start text adventure",
+        "let's play"
+      ],
+      "responses": [
+        "You find yourself standing at the gates of an ancient brick castle. To your left is a dark forest, and to your right is a glowing cavern. Which path do you choose? (Type 'forest' or 'cavern')"
+      ]
+    }
+  ]
+}
