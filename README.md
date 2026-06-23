@@ -118,3 +118,31 @@ Here is how the data processing and control loop flows through the system during
 4. **SSE Progress Stream:** The Flask server starts a background thread running the NumPy backpropagation loops. It feeds status metrics (epoch number, active loss, accuracy percentages) to a thread-safe queue. The `/api/train/status` Server-Sent Events (SSE) channel reads from this queue and pushes metrics live.
 5. **Dynamic Charts:** The React training cockpit receives the events and updates an interactive SVG chart showing training progress and loss curves in real-time.
 6. **Live Reload:** Once training finishes, the background thread overrides `data/model_weights.json` and `data/tokenizer_vocab.json`, and triggers `pipeline.load_model()` to instantly update the active chatbot's intelligence.
+
+---
+
+## 🔍 Working on and Visualizing the Pipeline
+
+### How to Modify the Pipeline Logic
+
+If you want to customize how the chatbot processes text or makes decisions:
+- **Change Text Cleanup & Stemming:** Edit [tokenizer.py](file:///c:/Users/Chandan%20Yaduvanshi/OneDrive/Documents/AI%20Chatbot/AI-Chatbot/backend/chatbot/tokenizer.py). You can add custom regex filters to `clean_text()`, modify the `stop_words` list, or add suffix mappings inside `stem()`.
+- **Change Neural Network Architecture:** Edit [model.py](file:///c:/Users/Chandan%20Yaduvanshi/OneDrive/Documents/AI%20Chatbot/AI-Chatbot/backend/chatbot/model.py). You can customize the hidden activation inside `MLPClassifier.forward()` (e.g., swapping ReLU for Sigmoid), add bias decay, or change weight initialization metrics.
+- **Modify Wizard Logic / Rules:** Edit [pipeline.py](file:///c:/Users/Chandan%20Yaduvanshi/OneDrive/Documents/AI%20Chatbot/AI-Chatbot/backend/chatbot/pipeline.py) to add new states, customize quiz responses, expand grammar rules (like Spanish or French adjective concordances), or add support ticketing steps.
+- **Validate Backend Changes:** Run the automated unit tests in your terminal after making changes to verify you haven't broken the pipeline:
+  ```powershell
+  backend\.venv\Scripts\python backend/test_chatbot.py
+  ```
+
+### How to Visualize the Pipeline in the React Dashboard
+
+To inspect the internal states of your custom NLU model:
+1. Go to the **Chat Console** tab in the dashboard.
+2. Select a mode (e.g., **Translation**) and enter a message (e.g., `"The red car is fast"`).
+3. Switch immediately to the **Pipeline Visualizer** tab in the left sidebar.
+4. The dashboard will show:
+   - **Step 1: Cleanup & Stemming:** See exactly which words were filtered out as stop-words and how suffixes were stripped (e.g., `"running"` ➔ `["run"]`).
+   - **Step 2: Vectorization Map:** Inspect which vocabulary indices activated in the Bag-of-Words sparse array.
+   - **Step 3: Neural Propagation:** View input, hidden, and output neurons turning on based on activations, alongside a live softmax probability bar chart showing how confident the model is in its classifications.
+   - **Step 4: Dialogue State Tracker:** See details about the currently active ticket structure, quiz score index, or translation language flags.
+
