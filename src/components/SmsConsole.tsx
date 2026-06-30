@@ -30,7 +30,7 @@ export const SmsConsole: React.FC = () => {
     {
       id: 'init',
       sender: 'bot',
-      text: 'Antares Auto-Responder active. Try text keywords like "start quiz", "help support" or "translate hello"',
+      text: 'Pluto AI Auto-Responder active. Try text keywords like "start quiz", "help support" or "translate hello"',
       time: '12:00 PM'
     }
   ]);

@@ -1,6 +1,6 @@
-# Antares AI - Custom Chatbot & NLU Pipeline Cockpit
+# Pluto AI - Custom Chatbot & NLU Pipeline Cockpit
 
-Antares AI is a custom chatbot platform built completely from scratch in Python (NumPy) and React + TypeScript. It is designed to run entirely locally without calling pre-built large language models or external APIs (such as OpenAI, Claude, or Gemini). It features an interactive glassmorphic cockpit UI where you can chat, view NLU/NLG token transitions, update training intents, and watch live training loss curves plotted in real-time.
+Pluto AI is a custom chatbot platform built completely from scratch in Python (NumPy) and React + TypeScript. It is designed to run entirely locally without calling pre-built large language models or external APIs (such as OpenAI, Claude, or Gemini). It features an interactive glassmorphic cockpit UI where you can chat, view NLU/NLG token transitions, update training intents, and watch live training loss curves plotted in real-time.
 
 ---
 
@@ -150,7 +150,7 @@ To inspect the internal states of your custom NLU model:
 
 ## 📱 SMS Auto-Reply & Webhook Integration
 
-Antares AI includes a built-in webhook pipeline to support auto-responses to real text messages (SMS or WhatsApp) from your own phone number.
+Pluto AI includes a built-in webhook pipeline to support auto-responses to real text messages (SMS or WhatsApp) from your own phone number.
 
 ### How to Hook Up a Real Phone Number (Twilio)
 1. **Start the backend:** Ensure the Flask backend is running locally on port 5000 (`npm run start-backend`).
